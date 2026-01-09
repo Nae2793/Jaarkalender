@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+
+<!-- Poppins font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Poppins", Arial, sans-serif;
+    background: black;
+    color: #ffffff;
+  }
+
+  #screen {
+    width: 100vw;
+    height: 100vh;
+    padding: 4vw;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  /* ───────── TOP (LOCKED) ───────── */
+  header {
+    text-align: center;
+    margin-bottom: 2vw;
+  }
+
+  header h2 {
+    font-size: 6vw;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+
+  /* ───────── MIDDLE (CHANGES) ───────── */
+  main {
+    transition: opacity 0.4s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .events {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(32vw, 1fr));
+    gap: 2vw 4vw;
+  }
+
+  .event {
+    break-inside: avoid;
+  }
+
+  .event-date {
+    font-size: 2vw;
+    opacity: 0.65;
+    margin-bottom: 0.3vw;
+  }
+
+  .event-title {
+    font-size: 2.6vw;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* ───────── BOTTOM (LOCKED) ───────── */
+  footer {
+    margin-top: 2vw;
+    font-size: 1.4vw;
+    display: flex;
+    justify-content: center;
+    gap: 1.6vw;
+    opacity: 0.65;
+  }
+
+  .month {
+    text-transform: uppercase;
+  }
+
+  .active {
+    opacity: 1;
+    font-weight: 600;
+  }
+</style>
+</head>
+
+<body>
+<div id="screen">
+
+  <!-- Locked top -->
+  <header>
+    <h2 id="monthTitle"></h2>
+  </header>
+
+  <!-- Only this changes -->
+  <main id="carousel"></main>
+
+  <!-- Locked bottom -->
+  <footer id="monthStrip"></footer>
+
+</div>
+
+<script>
+const calendar = {
+  "januari": [
+    { date: "1 jan", title: "Nieuwjaardag" },
+    { date: "2 jan", title: "Vastgestelde vrije dag" },
+    { date: "5 jan", title: "Nieuwjaarsontbijt" }
+  ],
+  "maart": [
+    { date: "14 mrt", title: "Personeelsfeest (incl. aanhang)" }
+  ],
+  "april": [
+    { date: "6 apr", title: "Tweede Paasdag (CAO)" },
+    { date: "27 apr", title: "Koningsdag (CAO)" }
+  ],
+  "mei": [
+    { date: "14 mei", title: "Hemelvaartsdag (CAO)" },
+    { date: "15 mei", title: "Vastgestelde vrije dag" },
+    { date: "22 mei", title: "Bedrijvenuurtje Pinkerfeesten" },
+    { date: "25 mei", title: "Tweede Pinksterdag (CAO)" }
+  ],
+  "juli": [
+    { date: "9 jul", title: "Vakantieborrel" }
+  ],
+  "oktober": [
+    { date: "23 okt", title: "Bomech Oktoberfest" }
+  ],
+  "december": [
+    { date: "18 dec", title: "Kerstborrel" },
+    { date: "24 dec", title: "Vastgestelde vrije dag" },
+    { date: "25 dec", title: "1e Kerstdag (CAO)" },
+    { date: "28 t/m 31 dec", title: "Vastgestelde vrije dag" },
+    { date: "31 dec", title: "Oudjaarsdag" }
+  ]
+};
+
+const months = Object.keys(calendar);
+let index = 0;
+
+const carousel = document.getElementById("carousel");
+const strip = document.getElementById("monthStrip");
+const monthTitle = document.getElementById("monthTitle");
+
+/* Total time the calendar is visible (ms) */
+const TOTAL_DURATION = 30000;
+
+/* Time per month */
+const INTERVAL = TOTAL_DURATION / months.length;
+
+function renderMonthStrip(active) {
+  strip.innerHTML = "";
+  months.forEach((m, i) => {
+    const span = document.createElement("span");
+    span.textContent = m;
+    span.className = "month" + (i === active ? " active" : "");
+    strip.appendChild(span);
+  });
+}
+
+function renderMonth(i) {
+  carousel.style.opacity = 0;
+
+  setTimeout(() => {
+    const month = months[i];
+    monthTitle.textContent = month;
+
+    carousel.innerHTML = `
+      <div class="events">
+        ${calendar[month].map(e => `
+          <div class="event">
+            <div class="event-date">${e.date}</div>
+            <div class="event-title">${e.title}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    renderMonthStrip(i);
+    carousel.style.opacity = 1;
+  }, 300);
+}
+
+renderMonth(index);
+
+setInterval(() => {
+  index = (index + 1) % months.length;
+  renderMonth(index);
+}, INTERVAL);
+</script>
+</body>
+</html>
